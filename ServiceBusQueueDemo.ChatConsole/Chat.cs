@@ -37,9 +37,12 @@ namespace ServiceBusQueueDemo.ChatConsole
 
             subscriptionClient.RegisterMessageHandler(ProcessMessagesAsync, ExceptionReceivedHandler);
 
-            Message helloMessage = new Message(Encoding.UTF8.GetBytes("Starting chat session..."));
-            helloMessage.Label = userName;
+            Message helloMessage = new(Encoding.UTF8.GetBytes("Starting chat session..."))
+            {
+                Label = userName
+            };
             topicClient.SendAsync(helloMessage).Wait();
+            byte[] contentBytes;
 
             while (true)
             {
@@ -52,14 +55,19 @@ namespace ServiceBusQueueDemo.ChatConsole
 
                 if (text.Equals("exit")) break;
 
-                Message chatMessage = new Message(Encoding.UTF8.GetBytes(text));
-                chatMessage.Label = userName;
+                contentBytes = Encoding.UTF8.GetBytes(text);
+                Message chatMessage = new(contentBytes)
+                {
+                    Label = userName
+                };
                 topicClient.SendAsync(chatMessage).Wait();
             }
 
-            byte[] contentBytes = Encoding.UTF8.GetBytes("Ending chat session...");
-            Message goodbyeMessage = new Message(contentBytes);
-            goodbyeMessage.Label = userName;
+            contentBytes = Encoding.UTF8.GetBytes("Ending chat session...");
+            Message goodbyeMessage = new(contentBytes)
+            {
+                Label = userName
+            };
             topicClient.SendAsync(goodbyeMessage).Wait();
 
             topicClient.CloseAsync().Wait();
@@ -69,7 +77,7 @@ namespace ServiceBusQueueDemo.ChatConsole
         private static async Task ProcessMessagesAsync(Message message, CancellationToken token)
         {
             string text = Encoding.UTF8.GetString(message.Body);
-            WriteLine($"{ message.Label }> { text }");
+            WriteLine($"{message.Label} > {text}");
         }
 
         private static Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
