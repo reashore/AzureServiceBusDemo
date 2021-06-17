@@ -13,8 +13,9 @@ namespace ServiceBusQueueDemo.MessageSender
         internal static void Main()
         {
             QueueClient queueClient = new QueueClient(ConnectionString, QueuePath);
+            const int numberMessages = 10;
 
-            for (int n = 0; n < 10; n++)
+            for (int n = 0; n < numberMessages; n++)
             {
                 string contentString = $"Message: {n}";
                 byte[] contentBytes = Encoding.UTF8.GetBytes(contentString);
@@ -25,7 +26,7 @@ namespace ServiceBusQueueDemo.MessageSender
 
             queueClient.CloseAsync().Wait();
             WriteLine("Sent messages...");
-            ReadLine();
+            ReadKey();
         }
     }
 }

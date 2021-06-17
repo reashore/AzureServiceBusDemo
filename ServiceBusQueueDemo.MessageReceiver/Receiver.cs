@@ -18,7 +18,7 @@ namespace ServiceBusQueueDemo.MessageReceiver
             queueClient.RegisterMessageHandler(ProcessMessagesAsync, ExceptionReceivedHandler);
 
             Console.WriteLine("Press enter to exit.");
-            Console.ReadLine();
+            Console.ReadKey();
 
             queueClient.CloseAsync().Wait();
         }

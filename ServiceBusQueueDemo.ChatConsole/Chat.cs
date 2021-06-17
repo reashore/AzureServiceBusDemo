@@ -26,11 +26,11 @@ namespace ServiceBusQueueDemo.ChatConsole
                 managementClient.CreateTopicAsync(TopicPath).Wait();
             }
 
-            SubscriptionDescription description = new (TopicPath, userName)
+            SubscriptionDescription subscriptionDescription = new (TopicPath, userName)
             {
                 AutoDeleteOnIdle = TimeSpan.FromMinutes(5)
             };            
-            managementClient.CreateSubscriptionAsync(description).Wait();
+            managementClient.CreateSubscriptionAsync(subscriptionDescription).Wait();
 
             TopicClient topicClient = new (ConnectionString, TopicPath);
             SubscriptionClient subscriptionClient = new (ConnectionString, TopicPath, userName);
@@ -53,13 +53,17 @@ namespace ServiceBusQueueDemo.ChatConsole
                     continue;
                 }
 
-                if (text.Equals("exit")) break;
+                if (text.Equals("exit"))
+                {
+                    break;
+                }
 
                 contentBytes = Encoding.UTF8.GetBytes(text);
                 Message chatMessage = new(contentBytes)
                 {
                     Label = userName
                 };
+
                 topicClient.SendAsync(chatMessage).Wait();
             }
 
