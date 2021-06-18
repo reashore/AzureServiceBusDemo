@@ -14,35 +14,93 @@ namespace ServiceBusQueueDemo.ChatConsole
         private const string ConnectionString = "";
         private const string TopicPath = "chattopic";
 
-        internal static void Main()
+        internal static async Task Main()
         {
             WriteLine("Enter name:");
             string userName = ReadLine();
 
             ManagementClient managementClient = new (ConnectionString);
+            TopicClient topicClient = await CreateTopicClient(managementClient);
+            SubscriptionClient subscriptionClient = await CreateSubscriptionClient(managementClient, userName);
 
+            await RunMessageLoop(topicClient, userName);
+
+            #region Old message loop
+
+            //-----------------------------
+
+            //Message startMessage = CreateMessage("Starting chat session...", userName);
+            //topicClient.SendAsync(startMessage).Wait();
+
+            //while (true)
+            //{
+            //    string text = ReadLine();
+
+            //    if (text == null)
+            //    {
+            //        continue;
+            //    }
+
+            //    if (text.Equals("exit"))
+            //    {
+            //        break;
+            //    }
+
+            //    Message chatMessage = CreateMessage(text, userName);
+            //    await topicClient.SendAsync(chatMessage);
+            //}
+
+            //Message endMessage = CreateMessage("Ending chat session...", userName);
+            //topicClient.SendAsync(endMessage).Wait();
+
+            #endregion
+
+            await topicClient.CloseAsync();
+            await subscriptionClient.CloseAsync();
+            await managementClient.CloseAsync();
+        }
+
+        private static async Task<TopicClient> CreateTopicClient(ManagementClient managementClient)
+        {
             if (!managementClient.TopicExistsAsync(TopicPath).Result)
             {
-                managementClient.CreateTopicAsync(TopicPath).Wait();
+                await managementClient.CreateTopicAsync(TopicPath);
             }
 
+            TopicClient topicClient = new (ConnectionString, TopicPath);
+            return topicClient;
+        }
+
+        private static async Task<SubscriptionClient> CreateSubscriptionClient(ManagementClient managementClient, string userName)
+        {
             SubscriptionDescription subscriptionDescription = new (TopicPath, userName)
             {
                 AutoDeleteOnIdle = TimeSpan.FromMinutes(5)
             };            
-            managementClient.CreateSubscriptionAsync(subscriptionDescription).Wait();
+            SubscriptionDescription foo = await managementClient.CreateSubscriptionAsync(subscriptionDescription);
 
-            TopicClient topicClient = new (ConnectionString, TopicPath);
             SubscriptionClient subscriptionClient = new (ConnectionString, TopicPath, userName);
 
             subscriptionClient.RegisterMessageHandler(ProcessMessagesAsync, ExceptionReceivedHandler);
 
-            Message helloMessage = new(Encoding.UTF8.GetBytes("Starting chat session..."))
+            return subscriptionClient;
+        }
+
+        private static Message CreateMessage(string content, string label)
+        {
+            byte[] contentBytes = Encoding.UTF8.GetBytes(content);
+            Message message = new(contentBytes)
             {
-                Label = userName
+                Label = label
             };
-            topicClient.SendAsync(helloMessage).Wait();
-            byte[] contentBytes;
+
+            return message;
+        }
+
+        private static async Task RunMessageLoop(TopicClient topicClient, string userName)
+        {
+            Message startMessage = CreateMessage("Starting chat session...", userName);
+            await topicClient.SendAsync(startMessage);
 
             while (true)
             {
@@ -58,24 +116,12 @@ namespace ServiceBusQueueDemo.ChatConsole
                     break;
                 }
 
-                contentBytes = Encoding.UTF8.GetBytes(text);
-                Message chatMessage = new(contentBytes)
-                {
-                    Label = userName
-                };
-
-                topicClient.SendAsync(chatMessage).Wait();
+                Message chatMessage = CreateMessage(text, userName);
+                await topicClient.SendAsync(chatMessage);
             }
 
-            contentBytes = Encoding.UTF8.GetBytes("Ending chat session...");
-            Message goodbyeMessage = new(contentBytes)
-            {
-                Label = userName
-            };
-            topicClient.SendAsync(goodbyeMessage).Wait();
-
-            topicClient.CloseAsync().Wait();
-            subscriptionClient.CloseAsync().Wait();
+            Message endMessage = CreateMessage("Ending chat session...", userName);
+            await topicClient.SendAsync(endMessage);
         }
 
         private static async Task ProcessMessagesAsync(Message message, CancellationToken token)

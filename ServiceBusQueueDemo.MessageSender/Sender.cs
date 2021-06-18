@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using static System.Console;
 
@@ -10,23 +11,28 @@ namespace ServiceBusQueueDemo.MessageSender
         private const string ConnectionString = "";
         private const string QueuePath = "demoqueue";
 
-        internal static void Main()
+        internal static async Task Main()
         {
             QueueClient queueClient = new QueueClient(ConnectionString, QueuePath);
             const int numberMessages = 10;
 
             for (int n = 0; n < numberMessages; n++)
             {
-                string contentString = $"Message: {n}";
-                byte[] contentBytes = Encoding.UTF8.GetBytes(contentString);
-                Message message = new Message(contentBytes);
-                queueClient.SendAsync(message).Wait();
+                Message message = CreateMessage($"Message: {n}");
+                await queueClient.SendAsync(message);
                 WriteLine($"Sent message: {n}");
             }
 
-            queueClient.CloseAsync().Wait();
+            await queueClient.CloseAsync();
             WriteLine("Sent messages...");
             ReadKey();
+        }
+
+        private static Message CreateMessage(string content)
+        {
+            byte[] contentBytes = Encoding.UTF8.GetBytes(content);
+            Message message = new Message(contentBytes);
+            return message;
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
+using static System.Console;
 
 namespace ServiceBusQueueDemo.MessageReceiver
 {
@@ -12,26 +12,26 @@ namespace ServiceBusQueueDemo.MessageReceiver
         private const string ConnectionString = "";
         private const string QueuePath = "demoqueue";
         
-        internal static void Main()
+        internal static async Task Main()
         {
             QueueClient queueClient = new QueueClient(ConnectionString, QueuePath);
             queueClient.RegisterMessageHandler(ProcessMessagesAsync, ExceptionReceivedHandler);
 
-            Console.WriteLine("Press enter to exit.");
-            Console.ReadKey();
+            WriteLine("Press enter to exit.");
+            ReadKey();
 
-            queueClient.CloseAsync().Wait();
+            await queueClient.CloseAsync();
         }
 
         private static async Task ProcessMessagesAsync(Message message, CancellationToken token)
         {
-            byte[] contentBytes = message.Body;
-            string contentString = Encoding.UTF8.GetString(contentBytes);
-            Console.WriteLine($"Received: { contentString }");
+            string contentString = Encoding.UTF8.GetString(message.Body);
+            WriteLine($"Received: {contentString}");
         }
 
         private static Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
         {
+            WriteLine($"exception: {exceptionReceivedEventArgs.Exception}");
             return Task.CompletedTask;
         }
     }
