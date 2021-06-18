@@ -14,19 +14,23 @@ namespace ServiceBusQueueDemo.MessageReceiver
         
         internal static async Task Main()
         {
+            await ReceiveMessagesAsync();
+            WriteLine("Sent messages...");
+            ReadKey();
+        }
+
+        private static async Task ReceiveMessagesAsync()
+        {
             QueueClient queueClient = new QueueClient(ConnectionString, QueuePath);
             queueClient.RegisterMessageHandler(ProcessMessagesAsync, ExceptionReceivedHandler);
-
-            WriteLine("Press enter to exit.");
-            ReadKey();
-
             await queueClient.CloseAsync();
         }
 
-        private static async Task ProcessMessagesAsync(Message message, CancellationToken token)
+        private static Task ProcessMessagesAsync(Message message, CancellationToken token)
         {
             string contentString = Encoding.UTF8.GetString(message.Body);
             WriteLine($"Received: {contentString}");
+            return Task.CompletedTask;
         }
 
         private static Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)

@@ -16,6 +16,12 @@ namespace ServiceBusQueueDemo.ChatConsole
 
         internal static async Task Main()
         {
+            await RunChat();
+            ReadKey();
+        }
+
+        private static async Task RunChat()
+        {
             WriteLine("Enter name:");
             string userName = ReadLine();
 
@@ -24,36 +30,6 @@ namespace ServiceBusQueueDemo.ChatConsole
             SubscriptionClient subscriptionClient = await CreateSubscriptionClient(managementClient, userName);
 
             await RunMessageLoop(topicClient, userName);
-
-            #region Old message loop
-
-            //-----------------------------
-
-            //Message startMessage = CreateMessage("Starting chat session...", userName);
-            //topicClient.SendAsync(startMessage).Wait();
-
-            //while (true)
-            //{
-            //    string text = ReadLine();
-
-            //    if (text == null)
-            //    {
-            //        continue;
-            //    }
-
-            //    if (text.Equals("exit"))
-            //    {
-            //        break;
-            //    }
-
-            //    Message chatMessage = CreateMessage(text, userName);
-            //    await topicClient.SendAsync(chatMessage);
-            //}
-
-            //Message endMessage = CreateMessage("Ending chat session...", userName);
-            //topicClient.SendAsync(endMessage).Wait();
-
-            #endregion
 
             await topicClient.CloseAsync();
             await subscriptionClient.CloseAsync();
@@ -77,6 +53,8 @@ namespace ServiceBusQueueDemo.ChatConsole
             {
                 AutoDeleteOnIdle = TimeSpan.FromMinutes(5)
             };            
+
+            // what does this do?
             SubscriptionDescription foo = await managementClient.CreateSubscriptionAsync(subscriptionDescription);
 
             SubscriptionClient subscriptionClient = new (ConnectionString, TopicPath, userName);
@@ -124,10 +102,11 @@ namespace ServiceBusQueueDemo.ChatConsole
             await topicClient.SendAsync(endMessage);
         }
 
-        private static async Task ProcessMessagesAsync(Message message, CancellationToken token)
+        private static Task ProcessMessagesAsync(Message message, CancellationToken token)
         {
             string text = Encoding.UTF8.GetString(message.Body);
             WriteLine($"{message.Label} > {text}");
+            return Task.CompletedTask;
         }
 
         private static Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)

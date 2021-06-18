@@ -13,6 +13,13 @@ namespace ServiceBusQueueDemo.MessageSender
 
         internal static async Task Main()
         {
+            await SendMessagesAsync();
+            WriteLine("Sent messages...");
+            ReadKey();
+        }
+
+        private static async Task SendMessagesAsync()
+        {
             QueueClient queueClient = new QueueClient(ConnectionString, QueuePath);
             const int numberMessages = 10;
 
@@ -24,8 +31,6 @@ namespace ServiceBusQueueDemo.MessageSender
             }
 
             await queueClient.CloseAsync();
-            WriteLine("Sent messages...");
-            ReadKey();
         }
 
         private static Message CreateMessage(string content)
