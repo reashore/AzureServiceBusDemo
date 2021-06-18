@@ -9,20 +9,17 @@ namespace ServiceBusQueueDemo.MessageReceiver
     // ReSharper disable once ClassNeverInstantiated.Global
     internal class Receiver
     {
-        private const string ConnectionString = "";
+        private const string ConnectionString = "Endpoint=sb://servicebusdemo321.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=/7M98fCxr1qN/QR2mqaFMDhRuvlzlwHiyabAXKPKSp0=";
         private const string QueuePath = "demoqueue";
         
         internal static async Task Main()
         {
-            await ReceiveMessagesAsync();
-            WriteLine("Sent messages...");
-            ReadKey();
-        }
-
-        private static async Task ReceiveMessagesAsync()
-        {
             QueueClient queueClient = new (ConnectionString, QueuePath);
-            queueClient.RegisterMessageHandler(ProcessMessagesAsync, ExceptionReceivedHandler);
+            queueClient.RegisterMessageHandler(ProcessMessagesAsync, HandleExceptionsAsync);
+
+            WriteLine("Receiving messages...");
+            ReadKey();
+            
             await queueClient.CloseAsync();
         }
 
@@ -33,7 +30,7 @@ namespace ServiceBusQueueDemo.MessageReceiver
             return Task.CompletedTask;
         }
 
-        private static Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
+        private static Task HandleExceptionsAsync(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
         {
             WriteLine($"exception: {exceptionReceivedEventArgs.Exception}");
             return Task.CompletedTask;

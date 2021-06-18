@@ -11,7 +11,7 @@ namespace ServiceBusQueueDemo.ChatConsole
     // ReSharper disable once ClassNeverInstantiated.Global
     internal class Chat
     {
-        private const string ConnectionString = "";
+        private const string ConnectionString = "Endpoint=sb://servicebusdemo321.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=/7M98fCxr1qN/QR2mqaFMDhRuvlzlwHiyabAXKPKSp0=";
         private const string TopicPath = "chattopic";
 
         internal static async Task Main()
@@ -55,11 +55,12 @@ namespace ServiceBusQueueDemo.ChatConsole
             };            
 
             // what does this do?
-            SubscriptionDescription foo = await managementClient.CreateSubscriptionAsync(subscriptionDescription);
+            await managementClient.CreateSubscriptionAsync(subscriptionDescription);
+            //SubscriptionDescription foo = await managementClient.CreateSubscriptionAsync(subscriptionDescription);
 
             SubscriptionClient subscriptionClient = new (ConnectionString, TopicPath, userName);
 
-            subscriptionClient.RegisterMessageHandler(ProcessMessagesAsync, ExceptionReceivedHandler);
+            subscriptionClient.RegisterMessageHandler(ProcessMessagesAsync, HandleExceptionsAsync);
 
             return subscriptionClient;
         }
@@ -109,7 +110,7 @@ namespace ServiceBusQueueDemo.ChatConsole
             return Task.CompletedTask;
         }
 
-        private static Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
+        private static Task HandleExceptionsAsync(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
         {
             return Task.CompletedTask;
         }
