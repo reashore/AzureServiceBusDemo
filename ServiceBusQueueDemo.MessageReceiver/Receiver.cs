@@ -21,7 +21,7 @@ namespace ServiceBusQueueDemo.MessageReceiver
 
         private static async Task ReceiveMessagesAsync()
         {
-            QueueClient queueClient = new QueueClient(ConnectionString, QueuePath);
+            QueueClient queueClient = new (ConnectionString, QueuePath);
             queueClient.RegisterMessageHandler(ProcessMessagesAsync, ExceptionReceivedHandler);
             await queueClient.CloseAsync();
         }

@@ -20,7 +20,7 @@ namespace ServiceBusQueueDemo.MessageSender
 
         private static async Task SendMessagesAsync()
         {
-            QueueClient queueClient = new QueueClient(ConnectionString, QueuePath);
+            QueueClient queueClient = new (ConnectionString, QueuePath);
             const int numberMessages = 10;
 
             for (int n = 0; n < numberMessages; n++)
@@ -36,7 +36,7 @@ namespace ServiceBusQueueDemo.MessageSender
         private static Message CreateMessage(string content)
         {
             byte[] contentBytes = Encoding.UTF8.GetBytes(content);
-            Message message = new Message(contentBytes);
+            Message message = new (contentBytes);
             return message;
         }
     }
