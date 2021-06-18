@@ -9,7 +9,7 @@ namespace ServiceBusQueueDemo.MessageReceiver
     // ReSharper disable once ClassNeverInstantiated.Global
     internal class Receiver
     {
-        private const string ConnectionString = "Endpoint=sb://servicebusdemo321.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=/7M98fCxr1qN/QR2mqaFMDhRuvlzlwHiyabAXKPKSp0=";
+        private const string ConnectionString = "";
         private const string QueuePath = "demoqueue";
         
         internal static async Task Main()

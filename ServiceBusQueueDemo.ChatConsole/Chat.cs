@@ -11,7 +11,7 @@ namespace ServiceBusQueueDemo.ChatConsole
     // ReSharper disable once ClassNeverInstantiated.Global
     internal class Chat
     {
-        private const string ConnectionString = "Endpoint=sb://servicebusdemo321.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=/7M98fCxr1qN/QR2mqaFMDhRuvlzlwHiyabAXKPKSp0=";
+        private const string ConnectionString = "";
         private const string TopicPath = "chattopic";
 
         internal static async Task Main()
