@@ -54,12 +54,8 @@ namespace ServiceBusQueueDemo.ChatConsole
                 AutoDeleteOnIdle = TimeSpan.FromMinutes(5)
             };            
 
-            // what does this do?
             await managementClient.CreateSubscriptionAsync(subscriptionDescription);
-            //SubscriptionDescription foo = await managementClient.CreateSubscriptionAsync(subscriptionDescription);
-
             SubscriptionClient subscriptionClient = new (ConnectionString, TopicPath, userName);
-
             subscriptionClient.RegisterMessageHandler(ProcessMessagesAsync, HandleExceptionsAsync);
 
             return subscriptionClient;
